@@ -1,0 +1,52 @@
+<?php
+session_start(); // Start the session to access session variables
+
+// Check if the user is logged in and is an admin
+if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
+
+    // Check if the request method is POST
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        // Decode the JSON request body
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (isset($data['action'])) {
+            if ($data['action'] === 'initBill') {
+                // Get the current time in 100-nanosecond intervals since 00:00:00 UTC on October 15, 1582
+                $time = microtime(true) * 10000000 + 621355968000000000;
+
+                // Get the MAC address of the machine
+                $mac = strtoupper(substr(md5(uniqid(rand(), true)), 0, 12)); // Example MAC address
+                $time_hi_and_version = ($time & 0x0FFF000000000000) >> 48 | (1 << 12); // Set version to 1
+
+                // Generate the UUID
+                $uuid = sprintf('%08x-%04x-%04x-%04x-%s',
+                    ($time & 0xFFFFFFFF),
+                    ($time >> 32) & 0xFFFF,
+                    $time_hi_and_version & 0xFFFF,
+                    random_int(0, 0x3FFF) | 0x8000, // Set bits 6 and 7 to indicate a random UUID
+                    substr($mac, 0, 12)
+                );
+
+                // Store the UUID in Session
+                $_SESSION['uuid'] = $uuid;
+                $_SESSION['CustomerID'] = $data['CustomerID'];
+                $_SESSION['CustomerName'] = $data['CustomerName'];
+                // Validate input
+                if (empty($data['CustomerID'])) {
+                    echo json_encode(['success' => false, 'error' => 'CustomerID is Missing']);
+                    exit();
+                }
+
+                $_SESSION['product_list'] = json_encode([]);
+
+                echo json_encode(['success' => true , 'uuid' => $uuid]);
+            } elseif ($data['action'] === 'addBill') {
+                echo json_encode(['success' => true]);
+            }
+        }
+    }
+}else {
+    echo json_encode(['success' => false]);
+}
+?>
