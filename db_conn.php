@@ -1,8 +1,8 @@
 <?php
 
 $sname= "127.0.0.1";
-$unmae= "sinan";
-$password = "kpmyran";
+$unmae= "root";
+$password = "";
 
 $db_name = "db_test";
 

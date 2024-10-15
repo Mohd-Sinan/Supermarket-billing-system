@@ -14,7 +14,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         body {
             font-family: Arial, sans-serif;
         }
-        .container {
+        #container {
+            position: relative;
             width: 800px;
             margin: 0 auto;
             padding: 20px;
@@ -99,7 +100,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             text-align: left;
         }
         .fixTableHead {
-            overflow: scroll;
+            overflow-y: scroll;
             max-height: 200px;
             margin-top:20px;
             1px solid black;
@@ -129,8 +130,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             padding: 10px;
         }
 	.notification {
-	    position: fixed;
-	    top: 20px;
+	    position: absolute;
+	    top: 10px;
 	    right: 20px;
 	    padding: 10px 20px;
 	    background-color: #efefef;
@@ -163,7 +164,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
 </head>
 <body>
 
-<div class="container">
+<div id="container">
     <div class="tabs">
         <div class="tab active" id="billing-tab">Billing</div>
         <div class="tab" id="products-tab">Products</div>
@@ -442,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.textContent = message;
-        document.body.appendChild(notification);
+        document.getElementById('container').appendChild(notification);
         setTimeout(() => notification.style.opacity = '0', 2500); // Start fade out after 2.5 seconds
         setTimeout(() => notification.remove(), 3000); // Remove after 3 seconds
     };

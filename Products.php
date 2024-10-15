@@ -34,7 +34,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
                 }
 
                 // SQL query to insert a product
-                $sql = "INSERT INTO products (name, price) VALUES (?, ?)";
+                $sql = "INSERT INTO products (Name, Price) VALUES (?, ?)";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("sd", $name, $price);
 
