@@ -127,6 +127,74 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
 
                 // Respond with success
                 echo json_encode(['success' => true]);
+            } elseif ($data['action'] === 'generateBill') {
+                require 'db_conn.php';
+
+                // Check if uuid session is set and CustomerID matches
+                if (!isset($_SESSION['uuid']) || $_SESSION['CustomerID'] !== $data['customerID']) {
+                    echo json_encode(['success' => false, 'error' => 'Session invalid or CustomerID mismatch']);
+                    exit();
+                }
+
+                // Start a transaction
+                $conn->begin_transaction();
+
+                try {
+                    // Use the UUID from the session as the OrderID
+                    $uuid = $_SESSION['uuid'];
+
+                    // Handle CustomerID: Use NULL if session CustomerID is -1
+                    $customerID = ($_SESSION['CustomerID'] == -1) ? NULL : $_SESSION['CustomerID'];
+
+                    // Insert the order into the orders table with the session UUID as OrderID
+                    $stmt = $conn->prepare("INSERT INTO orders (OrderID, CustomerID, Date_Time, Completion_Status) VALUES (?, ?, NOW(), 'pending')");
+
+                    // Use 'i' type if $customerID is an integer, and 's' type for OrderID (UUID)
+                    // NULL needs to be passed using NULL for bind_param (to handle NULL, we use conditional binding)
+                    if ($customerID === NULL) {
+                        $stmt->bind_param('ss', $uuid, $customerID); // Pass NULL explicitly for CustomerID
+                    } else {
+                        $stmt->bind_param('si', $uuid, $customerID);
+                    }
+                    if (!$stmt->execute()) {
+                        throw new Exception("Order insertion failed: " . $stmt->error);
+                    }
+                    // Insert each bill item into the sales table
+                    $bill_list = json_decode($_SESSION['Bill_list'], true);
+                    $stmt = $conn->prepare("INSERT INTO sales (OrderID, ProductID, Quantity) VALUES (?, ?, ?)");
+
+                    foreach ($bill_list as $item) {
+                        $stmt->bind_param('sid', $uuid, $item['ProductID'], $item['Quantity']);
+                        $stmt->execute();
+                    }
+
+                    // Update the order status to 'complete'
+                    $stmt = $conn->prepare("UPDATE orders SET Completion_Status = 'complete' WHERE OrderID = ?");
+                    $stmt->bind_param('s', $uuid);
+                    $stmt->execute();
+
+                    // Commit the transaction
+                    $conn->commit();
+
+                    // Clear session variables related to the bill
+                    unset($_SESSION['uuid']);
+                    unset($_SESSION['CustomerID']);
+                    unset($_SESSION['CustomerName']);
+                    unset($_SESSION['Bill_list']);
+                    unset($_SESSION['GrandTotal']);
+
+                    // Respond with success and the OrderID (UUID)
+                    echo json_encode(['success' => true, 'OrderID' => $uuid]);
+
+                } catch (Exception $e) {
+                    // Rollback the transaction if something goes wrong
+                    $conn->rollback();
+                    echo json_encode(['success' => false, 'error' => 'Transaction failed: ' . $e->getMessage()]);
+                }
+
+                // Close the statement and connection
+                $stmt->close();
+                $conn->close();
             }
         }
     }

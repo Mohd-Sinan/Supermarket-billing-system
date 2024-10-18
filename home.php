@@ -9,13 +9,16 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management</title>
+    <title>Billing System</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background: #1690A7;
         }
         #container {
             position: relative;
+            background: #fff;
+            border-radius: 10px;
             width: 800px;
             margin: 0 auto;
             padding: 20px;
@@ -28,6 +31,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             padding: 10px 20px;
             cursor: pointer;
             background-color: #f1f1f1;
+            border-radius: 10px 10px 0px 0px;
             border: 1px solid #ccc;
             border-bottom: none;
         }
@@ -36,6 +40,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             border-bottom: 1px solid #fff;
         }
         .tab-content {
+            position: relative;
+            border-radius: 0px 10px 10px 10px;
             border: 1px solid #ccc;
             padding: 20px;
         }
@@ -129,36 +135,41 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         #deleteProductID,#deleteCustomerID {
             padding: 10px;
         }
-	.notification {
-	    position: absolute;
-	    top: 10px;
-	    right: 20px;
-	    padding: 10px 20px;
-	    background-color: #efefef;
-	    color: #333;
-	    border: 1px solid #767676;
-	    border-radius: 2px;
-	    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-	    font-family: Arial, sans-serif;
-	    z-index: 1000;
-	    opacity: 0.95;
-	    transition: opacity 0.5s ease-out;
-	}
-	.notification.success {
-	    background-color: #d4edda;
-	    border-color: #c3e6cb;
-	    color: #155724;
-	}
-	.notification.error {
-	    background-color: #f8d7da;
-	    border-color: #f5c6cb;
-	    color: #721c24;
-	}
+        .notification {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #efefef;
+            color: #333;
+            border: 1px solid #767676;
+            border-radius: 2px;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+            opacity: 0.95;
+            transition: opacity 0.5s ease-out;
+        }
+        .notification.success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .notification.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
         #refresh , #refreshProduct , #refreshCustomer {
             float: right;
         }
         .bill-info{
             display:none;
+        }
+        .logout{
+            position: absolute;
+            top: 10px;
+            right: 20px;
         }
     </style>
 </head>
@@ -173,6 +184,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
 
 <!-- Customer Information Tab -->
     <div class="tab-content" id="billing-content">
+        <button class="logout" onclick="window.location.href='logout.php'" type="button">Logout</button>
         <h3>Billing Information</h3>
 
         <div class="form-controls">
@@ -215,8 +227,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         <!-- Bill Summary -->
         <div id="bill-summary">
             <h4>---------- Supreme Supermarket ----------</h4>
-            <p id='customer-name' class='bill-info'>Customer Name: Aashi Singh</p>
-            <p id="order-id" class='bill-info'>Order ID: </p>
+            <p id='customer-name' class='bill-info'></p>
+            <p id="order-id" class='bill-info'></p>
             <p class='bill-info'>Date: <?php echo date('d-m-Y'); ?></p>
             <table>
                 <thead>
@@ -236,6 +248,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
 
     <!-- Products Information Tab -->
     <div class="tab-content" id="products-content" style="display: none;">
+        <button class="logout" onclick="window.location.href='logout.php'" type="button">Logout</button>
         <h3>Product Information</h3>
         <div class="input-group">
             <label for="productName">Name:</label>
@@ -267,6 +280,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
     </div>
     <!-- Admin Information Tab (For Customer Management) -->
     <div class="tab-content" id="admin-content" style="display: none;">
+        <button class="logout" onclick="window.location.href='logout.php'" type="button">Logout</button>
         <h3>Customer Management</h3>
         <div class="input-group">
             <label for="customerName">Name:</label>
@@ -313,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const billSummary = document.getElementById('bill-summary');
     const createOrder = document.getElementById('new-order');
 
+    generateBillButton.addEventListener('click', generateBill);
     addBillButton.addEventListener('click', addBill);
     removeLastButton.addEventListener('click', removeLast);
     createOrder.addEventListener('click', initBill);
@@ -439,10 +454,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     //notification
-    const showMessage = (message, type = 'info') => {
+    const showMessage = (message, type) => {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.textContent = message;
+        
+        const notificationElements = document.querySelectorAll('.notification');
+
+        // Loop and remove any previous notification from the DOM
+        notificationElements.forEach(element => { element.remove(); });
+
         document.getElementById('container').appendChild(notification);
         setTimeout(() => notification.style.opacity = '0', 2500); // Start fade out after 2.5 seconds
         setTimeout(() => notification.remove(), 3000); // Remove after 3 seconds
@@ -606,14 +627,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initBill(){
 
-        selectCustomer.disabled = true;
-        discardOrder.disabled = false;
-        selectProduct.disabled = false;
-        quantityInput.disabled = false;
-        addBillButton.disabled = false;
-        removeLastButton.disabled = false;
-        generateBillButton.disabled = false;
-
         const CustID = selectCustomer.value;
         const custName = getCustName();
 
@@ -627,7 +640,20 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json()) // This will still try to parse the response
         .then(data => {
             if (data.success) {
+
+                selectCustomer.disabled = true;
+                discardOrder.disabled = false;
+                selectProduct.disabled = false;
+                quantityInput.disabled = false;
+                addBillButton.disabled = false;
+                removeLastButton.disabled = false;
+                generateBillButton.disabled = false;
+
                 fetchBillSummary();
+                showBillInfo(false);
+                billSummary.style.display = 'block';
+                this.disabled = true;
+
             } else {
                 showMessage( error, 'error');
             }
@@ -635,10 +661,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             showMessage( error, 'error');
         });
-
-
-        billSummary.style.display = 'block';
-        this.disabled = true;
     }
 
     function addBill() {
@@ -714,6 +736,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Split the text by ' - ' and return the second part (name)
         return selectCustomer.options[selectCustomer.selectedIndex].innerText.split(' - ').at(-1).trim();
     }
+    function showBillInfo(shouldShow) {
+        // Select all elements with the class 'bill-info'
+        const billInfoElements = document.querySelectorAll('.bill-info');
+
+        // Set all elements to the  display
+        billInfoElements.forEach(element => {
+            element.style.display = shouldShow ? 'block' : 'none' ;
+        });
+    }
     function removeLast(){
 
         // Send the POST request using fetch
@@ -764,7 +795,25 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(responseData => {
             if (responseData.success) {
-                showMessage("Bill Discarded Successfully" , 'success' );
+
+                selectCustomer.disabled = false;
+                createOrder.disabled = false;
+                selectProduct.disabled = true;
+                quantityInput.disabled = true;
+                addBillButton.disabled = true;
+                removeLastButton.disabled = true;
+                generateBillButton.disabled = true;
+
+                billSummary.style.display = 'none';
+                this.disabled = true;
+
+                showBillInfo(false);
+                document.querySelector('#bill-summary tbody').innerHTML = '';
+                document.getElementById('customer-name').innerText = '';
+                document.getElementById('order-id').innerText = '';
+                document.getElementById('GrandTotal').innerText = '';
+
+                showMessage("Order Discarded Successfully" , 'success' );
             } else {
                 showMessage("Failed To Discard Bill" , 'error' );
             }
@@ -772,23 +821,49 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             showMessage( error , 'error' );
         });
+    }
+    function generateBill(){
 
-        document.querySelector('#bill-summary tbody').innerHTML = '';
-        document.getElementById('customer-name').innerText = `Customer Name: `;
-        document.getElementById('order-id').innerText = `Order ID: `;
-        document.getElementById('GrandTotal').innerText = `Grand Total: `;
+        const CustID = selectCustomer.value;
 
-        selectCustomer.disabled = false;
-        createOrder.disabled = false;
-        selectProduct.disabled = true;
-        quantityInput.disabled = true;
-        addBillButton.disabled = true;
-        removeLastButton.disabled = true;
-        generateBillButton.disabled = true;
+        // Send the POST request using fetch
+        fetch('uuid.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action: 'generateBill' ,  customerID: CustID })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            if (responseData.success) {
 
-        billSummary.style.display = 'none';
-        this.disabled = true;
+                selectCustomer.disabled = false;
+                createOrder.disabled = false;
+                selectProduct.disabled = true;
+                quantityInput.disabled = true;
+                addBillButton.disabled = true;
+                removeLastButton.disabled = true;
+                generateBillButton.disabled = true;
+                discardOrder.disabled = true;
 
+                this.disabled = true;
+
+                showBillInfo(true);
+
+                showMessage("Bill Generated Successfully" , 'success' );
+            } else {
+                showMessage( responseData.error , 'error' );
+            }
+        })
+        .catch(error => {
+            showMessage( error , 'error' );
+        });
     }
 });
 
