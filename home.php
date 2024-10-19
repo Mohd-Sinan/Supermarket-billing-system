@@ -18,7 +18,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         #container {
             position: relative;
             background: #fff;
-            border-radius: 10px;
+            border-radius: 5px;
             width: 800px;
             margin: 0 auto;
             padding: 20px;
@@ -31,7 +31,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             padding: 10px 20px;
             cursor: pointer;
             background-color: #f1f1f1;
-            border-radius: 10px 10px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
             border: 1px solid #ccc;
             border-bottom: none;
         }
@@ -41,7 +41,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         }
         .tab-content {
             position: relative;
-            border-radius: 0px 10px 10px 10px;
+            border-radius: 0px 5px 5px 5px;
             border: 1px solid #ccc;
             padding: 20px;
         }
@@ -630,7 +630,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const CustID = selectCustomer.value;
         const custName = getCustName();
 
-        fetch('uuid.php' , {
+        fetch('BillManager.php' , {
              method: 'POST', // Use GET method to fetch UUID
              headers: {
                         'Content-Type': 'application/json',
@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Send the POST request using fetch
-        fetch('uuid.php', {
+        fetch('BillManager.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -748,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function removeLast(){
 
         // Send the POST request using fetch
-        fetch('uuid.php', {
+        fetch('BillManager.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const CustID = selectCustomer.value;
 
         // Send the POST request using fetch
-        fetch('uuid.php', {
+        fetch('BillManager.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -827,7 +827,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const CustID = selectCustomer.value;
 
         // Send the POST request using fetch
-        fetch('uuid.php', {
+        fetch('BillManager.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
