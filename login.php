@@ -32,7 +32,7 @@ if (isset($_POST['uname']) && isset($_POST['password'])) {
             	$_SESSION['name'] = $row['name'];
             	$_SESSION['id'] = $row['id'];
             	$_SESSION['notAdmin'] = $row['notAdmin'] ? true : false;
-            	header("Location: home.php");
+            	$_SESSION['notAdmin'] ? header("Location: Cashier.php") : header("Location: Admin.php");
 		        exit();
             }else{
 				header("Location: index.php?error=Incorect User name or password");

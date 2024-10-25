@@ -1,13 +1,11 @@
 <?php
 session_start();
 
-if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
-
-    if (!isset($_SESSION['notAdmin']) || $_SESSION['notAdmin'] === true) {
+if (isset($_SESSION['id']) && isset($_SESSION['user_name']) && ) {
+    if (!isset($_SESSION['notAdmin']) || $_SESSION['notAdmin'] === false) {
         header("Location: index.php");
         exit();
     }
-
  ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -162,7 +160,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             border-color: #f5c6cb;
             color: #721c24;
         }
-        #refresh , #refreshProduct , #refreshCustomer {
+        #refresh {
             float: right;
         }
         .bill-info{
@@ -180,8 +178,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
 <div id="container">
     <div class="tabs">
         <div class="tab active" id="billing-tab">Billing</div>
-        <div class="tab" id="products-tab">Products</div>
-        <div class="tab" id="customer-tab">Customer</div>
     </div>
 
     <!-- Billing Information Tab -->
@@ -247,71 +243,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             <p id='GrandTotal'>Grand Total: 0</p>
         </div>
     </div>
-
-    <!-- Products Information Tab -->
-    <div class="tab-content" id="products-content" style="display: none;">
-        <button class="logout" onclick="window.location.href='logout.php'" type="button">Logout</button>
-        <h3>Product Information</h3>
-        <div class="input-group">
-            <label for="productName">Name:</label>
-            <input type="text" id="productName">
-        </div>
-        <div class="input-group">
-            <label for="productPrice">Price:</label>
-            <input type="number" id="productPrice">
-        </div>
-        <button id="addProduct">Add Product</button>
-        <button id="refreshProduct">Refresh</button>
-        <div class="fixTableHead">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        </div>
-        <div class="input-group">
-            <input type="number" id="deleteProductID" min="1">
-            <button id="deleteProduct">Delete</button>
-        </div>
-    </div>
-    <!-- Customer Information Tab  -->
-    <div class="tab-content" id="customer-content" style="display: none;">
-        <button class="logout" onclick="window.location.href='logout.php'" type="button">Logout</button>
-        <h3>Customer Management</h3>
-        <div class="input-group">
-            <label for="customerName">Name:</label>
-            <input type="text" id="customerName">
-        </div>
-        <div class="input-group">
-            <label for="customerAddress">Address:</label>
-            <input type="text" id="customerAddress">
-        </div>
-        <button id="addCustomer">Add Customer</button>
-        <button id="refreshCustomer">Refresh</button>
-        <div class="fixTableHead">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        <div class="input-group">
-            <input type="number" id="deleteCustomerID" min="1">
-            <button id="deleteCustomer">Delete</button>
-        </div>
-    </div>
 </div>
 <script>
 
@@ -336,8 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
     discardOrder.addEventListener('click', discardBill);
 
     document.getElementById('refresh').addEventListener('click', loadProducts);
-    document.getElementById('refreshProduct').addEventListener('click', loadProducts);
-    document.getElementById('refreshCustomer').addEventListener('click', loadCustomers);
 
     function loadProducts() {
         fetch('fetch_products.php')
@@ -349,15 +278,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Get references to the product table body and product dropdown
-                const productTableBody = document.querySelector('#products-content tbody');
                 const billingTableBody = document.querySelector('#billing-content tbody');
 
                 // Clear any existing rows in the product table and dropdown
-                productTableBody.innerHTML = '';
+                billingTableBody.innerHTML = '';
                 selectProduct.innerHTML = '';
 
                 if (data.length === 0) {
-                    productTableBody.innerHTML = '<td colspan="3" style="text-align: center;">No Products Found</td>';
+                    billingTableBody.innerHTML = '<td colspan="3" style="text-align: center;">No Products Found</td>';
                 } else{
 
                     // Loop through each product returned from the server
@@ -370,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>${product.Name}</td>
                             <td>${product.Price}</td>
                         `;
-                        productTableBody.appendChild(row);
+                        billingTableBody.appendChild(row);
 
 
                         // Add an option to the product dropdown
@@ -378,12 +306,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.value = product.ProductID;
                         option.textContent = `${product.ProductID} - ${product.Name}`;
                         selectProduct.appendChild(option);
+
                     });
                 }
-
-                //Copy producttable to billingtable
-                billingTableBody.innerHTML = productTableBody.innerHTML;
-
             })
             .catch(error => console.error('Error loading products:', error));
     }
@@ -397,63 +322,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                // Get references to the product table body and product dropdown
-                const customerTableBody = document.querySelector('#admin-content tbody');
-
-                // Clear any existing rows in the product table and dropdown
-                customerTableBody.innerHTML = '';
-
                 //Default Customer
                 selectCustomer.innerHTML = '<option value="-1">Unknown</option>';
 
                 // Loop through each product returned from the server
                 data.forEach(customer => {
 
-                    // Add a row to the product table
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${customer.CustomerID}</td>
-                        <td>${customer.Name}</td>
-                        <td>${customer.Address}</td>
-                    `;
-                    customerTableBody.appendChild(row);
-
                     // Add an option to the product dropdown
                     const option = document.createElement('option');
                     option.value = customer.CustomerID;
                     option.textContent = `${customer.CustomerID} - ${customer.Name}`;
                     selectCustomer.appendChild(option);
+
                 });
             })
             .catch(error => console.error('Error loading customers:', error));
     }
-
-    document.getElementById('products-tab').addEventListener('click', function() {
-        document.getElementById('products-content').style.display = 'block';
-        document.getElementById('billing-content').style.display = 'none';
-        document.getElementById('customer-content').style.display = 'none';
-        this.classList.add('active');
-        document.getElementById('billing-tab').classList.remove('active');
-        document.getElementById('customer-tab').classList.remove('active');
-    });
-
-    document.getElementById('billing-tab').addEventListener('click', function() {
-        document.getElementById('products-content').style.display = 'none';
-        document.getElementById('billing-content').style.display = 'block';
-        document.getElementById('customer-content').style.display = 'none';
-        this.classList.add('active');
-        document.getElementById('products-tab').classList.remove('active');
-        document.getElementById('customer-tab').classList.remove('active');
-    });
-
-    document.getElementById('customer-tab').addEventListener('click', function() {
-        document.getElementById('customer-content').style.display = 'block';
-        document.getElementById('billing-content').style.display = 'none';
-        document.getElementById('products-content').style.display = 'none';
-        this.classList.add('active');
-        document.getElementById('billing-tab').classList.remove('active');
-        document.getElementById('products-tab').classList.remove('active');
-    });
 
     //notification
     const showMessage = (message, type) => {
@@ -470,162 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => notification.style.opacity = '0', 2500); // Start fade out after 2.5 seconds
         setTimeout(() => notification.remove(), 3000); // Remove after 3 seconds
     };
-
-
-    //Add product
-    document.getElementById('addProduct').addEventListener('click', function() {
-        // Get the product name and price from the input fields
-        const productName = document.getElementById('productName').value;
-        const productPrice = document.getElementById('productPrice').value;
-
-        // Check if both name and price are provided
-        if (!productName || !productPrice) {
-            alert('Please fill out both fields.');
-            return;
-        }
-
-        // Create the data object to send in the POST request
-        const productData = {
-            action: "add",
-            name: productName,
-            price: productPrice
-        };
-
-        // Send the product data using fetch with POST method
-        fetch('Products.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(productData) // Convert data to JSON string for POST
-        })
-        .then(response => response.json()) // Get response as JSON
-        .then(data => {
-            if (data.success) {
-                showMessage('Product added successfully!', 'success');
-                document.getElementById('productName').value = '';  // Clear the input fields
-                document.getElementById('productPrice').value = '';
-                loadProducts(); // Refresh the product list
-            } else {
-                alert('Failed to add product.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-
-    });
-
-    //Delete Product
-    document.getElementById('deleteProduct').addEventListener('click', function() {
-        const productId = document.getElementById('deleteProductID').value;
-
-        if (!productId) {
-            showMessage('Please provide a valid product ID.', 'error');
-            return;
-        }
-
-        if (confirm('Are you sure you want to delete this product?')) {
-            fetch('Products.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ action: "delete", id: productId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showMessage('Product deleted successfully!', 'success');
-                    document.getElementById('deleteProductID').value = '';
-                    loadProducts(); // Refresh the product list
-                } else {
-                    showMessage('Error: ' + data.error, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showMessage('An error occurred.', 'error');
-            });
-        }
-    });
-
-    // Add Customer
-    document.getElementById('addCustomer').addEventListener('click', function() {
-        const customerName = document.getElementById('customerName').value;
-        const customerAddress = document.getElementById('customerAddress').value;
-
-        if (!customerName || !customerAddress) {
-            alert('Please fill out both fields.');
-            return;
-        }
-
-        const customerData = {
-	    action: 'add',
-            name: customerName,
-            address: customerAddress
-        };
-
-        fetch('Customers.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(customerData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showMessage('Customer added successfully!' , 'success');
-                document.getElementById('customerName').value = '';
-                document.getElementById('customerAddress').value = '';
-                loadCustomers();
-            } else {
-                showMessage('Failed to add customer.' , 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showMessage('An error occurred.', 'error');
-        });
-
-    });
-
-
-    // Delete Customer
-    document.getElementById('deleteCustomer').addEventListener('click', function() {
-        const customerId = document.getElementById('deleteCustomerID').value;
-
-        if (!customerId) {
-            alert('Please provide a valid customer ID.');
-            return;
-        }
-
-        if (confirm('Are you sure you want to delete this customer?')) {
-            fetch('Customers.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ action: "delete" , id: customerId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showMessage('Customer deleted successfully!' , 'success');
-                    document.getElementById('deleteCustomerID').value = '';
-                    loadCustomers(); // Refresh the customer list
-                } else {
-                    showMessage('Error: ' + data.error , 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showMessage('An error occurred.', 'error');
-            });
-
-        }
-    });
 
     function initBill(){
 
