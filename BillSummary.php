@@ -35,7 +35,7 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             $response['success'] = true;
             $response['GrandTotal'] = $_SESSION['GrandTotal'];;
         } else {
-            $response['data'] = "<tr><td colspan='4' style='text-align: center;'>Bill list is Empty</td></tr>";
+            $response['data'] = "<tr><td colspan='4' style='text-align: center;'>Bill is Empty</td></tr>";
         }
     } else {
         $response['data'] = "<tr><td colspan='4' style='text-align: center;'>No Bill list found in session.</td></tr>";

@@ -134,6 +134,9 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             border: 1px solid #000;
             padding: 10px;
         }
+        #bill-summary table , h4{
+            margin:5px;
+        }
         #deleteProductID,#deleteCustomerID {
             padding: 10px;
         }
@@ -172,6 +175,9 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             position: absolute;
             top: 10px;
             right: 20px;
+        }
+        .bill_header{
+            text-align: center;
         }
     </style>
 </head>
@@ -228,7 +234,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         </div>
         <!-- Bill Summary -->
         <div id="bill-summary">
-            <h4>---------- Supreme Supermarket ----------</h4>
+            <h3 class="bill_header">Supreme Supermarket</h3>
+            <h4 class="bill_header" ><u>Bill Info</u></h4>
             <p id='customer-name' class='bill-info'></p>
             <p id="order-id" class='bill-info'></p>
             <p class='bill-info'>Date: <?php echo date('d-m-Y'); ?></p>
@@ -358,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (data.length === 0) {
                     productTableBody.innerHTML = '<td colspan="3" style="text-align: center;">No Products Found</td>';
-                } else{
+                } else {
 
                     // Loop through each product returned from the server
                     data.forEach(product => {
@@ -398,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Get references to the product table body and product dropdown
-                const customerTableBody = document.querySelector('#admin-content tbody');
+                const customerTableBody = document.querySelector('#customer-content tbody');
 
                 // Clear any existing rows in the product table and dropdown
                 customerTableBody.innerHTML = '';
@@ -406,24 +413,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 //Default Customer
                 selectCustomer.innerHTML = '<option value="-1">Unknown</option>';
 
-                // Loop through each product returned from the server
-                data.forEach(customer => {
+                if (data.length === 0) {
+                    customerTableBody.innerHTML = '<td colspan="3" style="text-align: center;">No Customers Found</td>';
+                } else {
+                    // Loop through each product returned from the server
+                    data.forEach(customer => {
 
-                    // Add a row to the product table
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${customer.CustomerID}</td>
-                        <td>${customer.Name}</td>
-                        <td>${customer.Address}</td>
-                    `;
-                    customerTableBody.appendChild(row);
+                        // Add a row to the product table
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${customer.CustomerID}</td>
+                            <td>${customer.Name}</td>
+                            <td>${customer.Address}</td>
+                        `;
+                        customerTableBody.appendChild(row);
 
-                    // Add an option to the product dropdown
-                    const option = document.createElement('option');
-                    option.value = customer.CustomerID;
-                    option.textContent = `${customer.CustomerID} - ${customer.Name}`;
-                    selectCustomer.appendChild(option);
-                });
+                        // Add an option to the product dropdown
+                        const option = document.createElement('option');
+                        option.value = customer.CustomerID;
+                        option.textContent = `${customer.CustomerID} - ${customer.Name}`;
+                        selectCustomer.appendChild(option);
+                    });
+                }
             })
             .catch(error => console.error('Error loading customers:', error));
     }
