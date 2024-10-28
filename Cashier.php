@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (isset($_SESSION['id']) && isset($_SESSION['user_name']) && ) {
+if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
     if (!isset($_SESSION['notAdmin']) || $_SESSION['notAdmin'] === false) {
         header("Location: index.php");
         exit();
@@ -132,6 +132,9 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name']) && ) {
             border: 1px solid #000;
             padding: 10px;
         }
+        #bill-summary table , h4{
+            margin:5px;
+        }
         #deleteProductID,#deleteCustomerID {
             padding: 10px;
         }
@@ -170,6 +173,9 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name']) && ) {
             position: absolute;
             top: 10px;
             right: 20px;
+        }
+        .bill_header{
+            text-align: center;
         }
     </style>
 </head>
@@ -224,7 +230,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name']) && ) {
         </div>
         <!-- Bill Summary -->
         <div id="bill-summary">
-            <h4>---------- Supreme Supermarket ----------</h4>
+            <h3 class="bill_header">Supreme Supermarket</h3>
+            <h4 class="bill_header" ><u>Bill Info</u></h4>
             <p id='customer-name' class='bill-info'></p>
             <p id="order-id" class='bill-info'></p>
             <p class='bill-info'>Date: <?php echo date('d-m-Y'); ?></p>
