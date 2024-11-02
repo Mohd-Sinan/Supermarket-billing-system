@@ -27,21 +27,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             padding: 20px;
             border: 1px solid #ccc;
         }
-        .tabs {
-            display: flex;
-        }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #f1f1f1;
-            border-radius: 5px 5px 0px 0px;
-            border: 1px solid #ccc;
-            border-bottom: none;
-        }
-        .tab.active {
-            background-color: #fff;
-            border-bottom: 1px solid #fff;
-        }
         .tab-content {
             position: relative;
             border-radius: 0px 5px 5px 5px;
@@ -182,10 +167,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
 <body>
 
 <div id="container">
-    <div class="tabs">
-        <div class="tab active" id="billing-tab">Billing</div>
-    </div>
-
     <!-- Billing Information Tab -->
     <div class="tab-content" id="billing-content">
         <button class="logout" onclick="window.location.href='logout.php'" type="button">Logout</button>

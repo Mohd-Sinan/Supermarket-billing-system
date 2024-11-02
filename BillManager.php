@@ -195,10 +195,12 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
                 // Close the statement and connection
                 $stmt->close();
                 $conn->close();
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Invalid Action']);
             }
         }
     }
 }else {
-    echo json_encode(['success' => false]);
+    echo json_encode(['success' => false,'error' => 'Invalid Session']);
 }
 ?>
