@@ -16,6 +16,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin:0;
+            padding:10px;
             background: #1690A7;
         }
         #container {

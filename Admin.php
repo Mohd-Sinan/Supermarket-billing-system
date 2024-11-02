@@ -18,6 +18,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin:0;
+            padding:10px;
             background: #1690A7;
         }
         #container {
@@ -39,6 +41,9 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
             border-radius: 5px 5px 0px 0px;
             border: 1px solid #ccc;
             border-bottom: none;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
         }
         .tab.active {
             background-color: #fff;
