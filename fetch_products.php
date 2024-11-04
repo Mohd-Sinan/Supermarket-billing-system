@@ -1,30 +1,37 @@
 <?php
 session_start();
-include "db_conn.php"; // Include your database connection
 
-// Define the SQL query to fetch products
-$sql = "SELECT ProductID, Name, Price FROM products";
+// Check if the user is logged in
+if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
+    require "db_conn.php"; // Ensure you have this connection established
 
-// Execute the query
-$result = $conn->query($sql);
+    // Define the SQL query to fetch products
+    $sql = "SELECT ProductID, Name, Price FROM products";
 
-// Initialize an array to hold the product data
-$products = [];
+    // Execute the query
+    $result = $conn->query($sql);
 
-// Check if the query was successful
-if ($result) {
-    // Fetch the results into the products array
-    while ($row = $result->fetch_assoc()) {
-        $products[] = $row;
+    // Initialize an array to hold the product data
+    $products = [];
+
+    // Check if the query was successful
+    if ($result) {
+        // Fetch the results into the products array
+        while ($row = $result->fetch_assoc()) {
+            $products[] = $row;
+        }
+
+        // Set the response header to JSON and encode the products
+        echo json_encode($products);
+    } else {
+        // If the query failed, send an error response
+        echo json_encode(['error' => 'Product query failed: ' . $conn->error]);
     }
 
-    // Set the response header to JSON and encode the products
-    echo json_encode($products);
+    // Close the database connection
+    $conn->close();
 } else {
-    // If the query failed, send an error response
-    echo json_encode(['error' => 'Product query failed: ' . $conn->error]);
+    header("Location: index.php");
+    exit();
 }
-
-// Close the database connection
-$conn->close();
 ?>

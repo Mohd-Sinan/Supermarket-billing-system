@@ -41,7 +41,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         $response['data'] = "<tr><td colspan='4' style='text-align: center;'>No Bill list found in session.</td></tr>";
     }
 } else {
-    $response['data'] = "<tr><td colspan='4' style='text-align: center;'>User not logged in.</td></tr>";
+    header("Location: index.php");
+    exit();
 }
 
 // Set the Content-Type to application/json and return the response as JSON

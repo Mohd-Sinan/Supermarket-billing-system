@@ -67,6 +67,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name']) && (isset($_SESSION[
         echo json_encode(['success' => false, 'error' => 'Invalid request method']);
     }
 } else {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+    // Redirect to login if session is invalid
+    header("Location: index.php");
+    exit();
 }
 ?>

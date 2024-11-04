@@ -1,7 +1,7 @@
 <?php
 session_start(); // Start the session to access session variables
 
-// Check if the user is logged in and is an admin
+// Check if the user is logged in
 if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
 
     // Check if the request method is POST
@@ -200,7 +200,9 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
             }
         }
     }
-}else {
-    echo json_encode(['success' => false,'error' => 'Invalid Session']);
+} else {
+    // Redirect to login if session is invalid
+    header("Location: index.php");
+    exit();
 }
 ?>
