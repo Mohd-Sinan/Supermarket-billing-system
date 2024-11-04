@@ -75,6 +75,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
         }
 
         $conn->close();
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Invalid request method']);
     }
 } else {
     // Redirect to login if session is invalid

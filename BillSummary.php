@@ -2,23 +2,24 @@
 // Start the session
 session_start();
 
-// Initialize the response array
-$response = [
-    'success' => false,
-    'uuid' => $_SESSION['uuid'],
-    'customerName' => '',
-    'data' => '',
-    'GrandTotal' => 0
-];
-
 // Check if the user is logged in
 if (isset($_SESSION['id']) && isset($_SESSION['user_name'])) {
 
-    // Set the customer name in the response
-    $response['customerName'] = htmlspecialchars($_SESSION['CustomerName']);
-
     // Retrieve the product list from the session and decode the JSON
     if (isset($_SESSION['Bill_list'])) {
+
+        // Initialize the response array
+        $response = [
+            'success' => false,
+            'uuid' => $_SESSION['uuid'],
+            'customerName' => '',
+            'data' => '',
+            'GrandTotal' => 0
+        ];
+
+        // Set the customer name in the response
+        $response['customerName'] = htmlspecialchars($_SESSION['CustomerName']);
+
         $productList = json_decode($_SESSION['Bill_list'], true); // Decode the JSON into an associative array
 
         // Make sure it's an array and not empty

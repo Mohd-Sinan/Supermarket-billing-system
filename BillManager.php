@@ -130,9 +130,16 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
             } elseif ($data['action'] === 'generateBill') {
                 require 'db_conn.php';
 
+                $bill_list = json_decode($_SESSION['Bill_list'], true);
+
                 // Check if uuid session is set and CustomerID matches
                 if (!isset($_SESSION['uuid']) || $_SESSION['CustomerID'] !== $data['customerID']) {
                     echo json_encode(['success' => false, 'error' => 'Session invalid or CustomerID mismatch']);
+                    exit();
+                }
+
+                if(empty($bill_list)){
+                    echo json_encode(['success' => false, 'error' => 'Bill Cannot be Empty']);
                     exit();
                 }
 
@@ -160,7 +167,6 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
                         throw new Exception("Order insertion failed: " . $stmt->error);
                     }
                     // Insert each bill item into the sales table
-                    $bill_list = json_decode($_SESSION['Bill_list'], true);
                     $stmt = $conn->prepare("INSERT INTO sales (OrderID, ProductID, Quantity) VALUES (?, ?, ?)");
 
                     foreach ($bill_list as $item) {
@@ -199,6 +205,8 @@ if (isset($_SESSION['id']) && isset($_SESSION['user_name'])){
                 echo json_encode(['success' => false, 'error' => 'Invalid Action']);
             }
         }
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Invalid request method']);
     }
 } else {
     // Redirect to login if session is invalid
